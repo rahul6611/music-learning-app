@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "711093058308",
+    "project_id": "music-learning-app-32130",
+    "storage_bucket": "music-learning-app-32130.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:711093058308:android:29e2b4b9fc676151f36e51",
+        "android_client_info": {
+          "package_name": "com.musiclearningapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "711093058308-0h2jfolhcn8412lp0qa9nq4j8adf31r5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.musiclearningapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "711093058308-1pe74d01hj3jib8bks8ldsbamjj40uum.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHC5qVO9TLqDAC4Eq-f9Jw3UylWHKvBhY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "711093058308-1pe74d01hj3jib8bks8ldsbamjj40uum.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

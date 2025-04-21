@@ -3,12 +3,13 @@ import { View, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { googleLogin, loginUser } from '../../store/slices/authSlice';
 import { TextInput, useTheme } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.auth);
+  const { loading, error, user, role } = useSelector((state) => state.auth);
   const { colors } = useTheme();
 
 
@@ -22,7 +23,6 @@ const Login = ({ navigation }) => {
       await dispatch(loginUser({ email, password }));
       setEmail('');
       setPassword('');
-      navigation.navigate('Home');
     } catch (error) {
       Alert.alert('Login Failed', error.message);
     }
@@ -60,7 +60,7 @@ const Login = ({ navigation }) => {
         secureTextEntry
         activeOutlineColor={colors.primary}
       />
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.button, { backgroundColor: colors.primary }]}
         onPress={handleLogin}
         disabled={loading}
@@ -69,20 +69,17 @@ const Login = ({ navigation }) => {
           {loading ? 'Logging in...' : 'Login'}
         </Text>
       </TouchableOpacity>
-
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.button, { backgroundColor: colors.primary }]}
         onPress={handleGoogleLogin}
         disabled={loading}
       >
-        <Text style={styles.buttonText}>
-          {'Login with Google'}
-        </Text>
+        <View style={styles.buttonContent}>
+          <Icon name="google" size={24} color="white" style={styles.icon} />
+          <Text style={styles.buttonText}>Login with Google</Text>
+        </View>
       </TouchableOpacity>
-
-      
-      
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => navigation.navigate('Signup')}
         style={styles.linkButton}
       >
@@ -129,6 +126,14 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 16,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    marginRight: 10,
   },
 });
 

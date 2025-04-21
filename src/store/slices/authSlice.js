@@ -2,17 +2,19 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { GOOGLE_SIGNIN_WEBCLIENTID } from '@env';
 
 const initialState = {
   user: null,
   isAuthenticated: false,
   loading: false,
   error: null,
-  role: null, 
+  role: null,
+  allUsers: [] 
 };
 
 GoogleSignin.configure({
-  webClientId: '711093058308-1pe74d01hj3jib8bks8ldsbamjj40uum.apps.googleusercontent.com',
+  webClientId: GOOGLE_SIGNIN_WEBCLIENTID,
   offlineAccess: true,
   forceCodeForRefreshToken: true,
 });
@@ -93,7 +95,7 @@ export const loginUser = createAsyncThunk(
       };
       
       dispatch(loginSuccess(userWithRole));
-      return user;
+      return userWithRole;
     } catch (error) {
       console.log('login error', error);
       if (error.code === 'auth/email-already-in-use') {
@@ -136,19 +138,16 @@ export const googleLogin = createAsyncThunk(
         await firestore().collection('users').doc(userCredential.user.uid).set({
           email: userCredential.user.email,
           fullName: userCredential.user.displayName || '',
-          role: 'user', // Default role
+          role: 'student',
           createdAt: firestore.FieldValue.serverTimestamp(),
           googleSignIn: true
         });
       }
       
-      // Get user data with role
-      const userData = userDoc.exists ? userDoc.data() : { role: 'user' };
-      
-      // Create a user object with role information
+      const userData = userDoc.exists ? userDoc.data() : { role: 'student' };
       const userWithRole = {
         ...userCredential.user._user,
-        role: userData.role || 'user'
+        role: userData.role || 'student'
       };
       
       dispatch(loginSuccess(userWithRole));
@@ -158,6 +157,22 @@ export const googleLogin = createAsyncThunk(
       console.error('Google login error:', error);
       dispatch(loginFailure(error.message));
       throw error;
+    }
+  }
+);
+
+export const fetchUsers = createAsyncThunk(
+  'users/fetchAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const snapshot = await firestore().collection('users').get();
+      const users = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));      
+      return users;
+    } catch (error) {
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -178,6 +193,21 @@ export const logoutUser = createAsyncThunk(
 const authSlice = createSlice({
   name: 'auth',
   initialState,
+   extraReducers: (builder) => {
+      builder
+        .addCase(fetchUsers.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(fetchUsers.fulfilled, (state, action) => {
+          state.loading = false;
+          state.allUsers = action.payload;
+        })
+        .addCase(fetchUsers.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        })
+    },
   reducers: {
     signupStart: (state) => {
       state.loading = true;
@@ -187,7 +217,7 @@ const authSlice = createSlice({
       state.loading = false;
       state.isAuthenticated = true;
       state.user = action.payload;
-      state.role = action.payload.role || 'user';
+      state.role = action.payload.role;
       state.error = null;
     },
     signupFailure: (state, action) => {
@@ -202,7 +232,7 @@ const authSlice = createSlice({
       state.loading = false;
       state.isAuthenticated = true;
       state.user = action.payload;
-      state.role = action.payload.role || 'user';
+      state.role = action.payload.role;
       state.error = null;
     },
     loginFailure: (state, action) => {

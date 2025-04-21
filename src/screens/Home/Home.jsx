@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button, Text, Title } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../../store/slices/authSlice';
+import { logoutUser } from '../../store/slices/authSlice';
 
 export default function Home({ navigation }) {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -11,9 +11,13 @@ export default function Home({ navigation }) {
   console.log('User:', user);
   
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigation.navigate('Login');
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser());
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   if (!isAuthenticated) {
@@ -24,7 +28,7 @@ export default function Home({ navigation }) {
   return (
     <View style={styles.container}>
       <Title style={styles.title}>Welcome to Music Learning App</Title>
-      <Text style={styles.subtitle}>Hello, {user?.name || 'User'}!</Text>
+      <Text style={styles.subtitle}>Hello, {user?.role}!</Text>
       <Text style={styles.email}>Email: {user?.email}</Text>
       
       <View style={styles.buttonContainer}>

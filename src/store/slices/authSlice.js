@@ -98,6 +98,7 @@ export const loginUser = createAsyncThunk(
       return userWithRole;
     } catch (error) {
       console.log('login error', error);
+       dispatch(loginFailure(error.message));
       if (error.code === 'auth/email-already-in-use') {
         dispatch(loginFailure('That email address is already in use!'));
       }

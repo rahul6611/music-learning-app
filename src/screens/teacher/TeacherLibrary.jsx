@@ -13,6 +13,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLessons } from '../../store/slices/lessonSlice';
+import { fetchTechnic } from '../../store/slices/technicSlice';
 import { useNavigation } from '@react-navigation/native';
 
 const staticData = {
@@ -86,7 +87,7 @@ const staticData = {
   ]
 };
 
-const CategorySection = ({ title, items, onViewAll, onRefresh }) => (
+const CategorySection = ({ title, items, onViewAll, onRefresh, navigation }) => (
   <View style={styles.section}>
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -121,9 +122,27 @@ const CategorySection = ({ title, items, onViewAll, onRefresh }) => (
             {item.description && (
               <Text style={styles.cardDescription} numberOfLines={2}>{item.description}</Text>
             )}
-            <TouchableOpacity style={styles.favoriteButton}>
-              <Icon name="heart-outline" size={20} color="#757575" />
-            </TouchableOpacity>
+            <View style={styles.cardActions}>
+              <TouchableOpacity style={styles.favoriteButton}>
+                <Icon name="heart-outline" size={20} color="#757575" />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.assignButton}
+                onPress={() => {
+                  if (!navigation) {
+                    console.error('Navigation prop is missing');
+                    return;
+                  }
+                  navigation.navigate('AssignContent', {
+                    contentId: item.id,
+                    contentType: title.toLowerCase().includes('My Lessons') ? 'lesson' : 'technic',
+                    contentTitle: item.title
+                  });
+                }}
+              >
+                <Icon name="account-plus" size={20} color="#6200EE" />
+              </TouchableOpacity>
+            </View>
           </View>
         </TouchableOpacity>
       ))}
@@ -133,7 +152,8 @@ const CategorySection = ({ title, items, onViewAll, onRefresh }) => (
 
 const TeacherLibrary = () => {
   const dispatch = useDispatch();
-  const { lessons, loading, error } = useSelector((state) => state.lessons);
+  const { lessons, loading: lessonsLoading, error: lessonsError } = useSelector((state) => state.lessons);
+  const { technics, loading: technicsLoading, error: technicsError } = useSelector((state) => state.technic);
   const [refreshing, setRefreshing] = React.useState(false);
   const navigation = useNavigation();
   const { user } = useSelector((state) => state.auth);
@@ -153,12 +173,25 @@ const TeacherLibrary = () => {
     }
   };
 
+  const loadTechnics = async () => {
+    try {
+      if (!user || !user.uid) {
+        throw new Error('User not authenticated');
+      }
+      await dispatch(fetchTechnic(user.uid));
+    } catch (error) {
+      console.error('Failed to fetch techniques:', error);
+      Alert.alert('Error', 'Failed to load techniques. Please try again.');
+    }
+  };
+
   useEffect(() => {
     if (!user || !user.uid) {
       Alert.alert('Error', 'User information not available. Please log in again.');
       return;
     }
     loadLessons();
+    loadTechnics();
   }, [user]);
 
   const handleViewAll = (category) => {
@@ -168,31 +201,33 @@ const TeacherLibrary = () => {
         return;
       }
       navigation.navigate('AllLessons');
-    } else if( category === 'technics') {
+    } else if (category === 'technics') {
       if (!user || !user.uid) {
-        Alert.alert('Error', 'Please log in to view technics');
+        Alert.alert('Error', 'Please log in to view techniques');
         return;
       }
-      // navigation.navigate('AllLessons');
+      navigation.navigate('AllTechnics');
     }
   };
 
   const handleRefreshCategory = (category) => {
     if (category === 'lessons') {
       loadLessons();
+    } else if (category === 'technics') {
+      loadTechnics();
     }
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      await loadLessons();
+      await Promise.all([loadLessons(), loadTechnics()]);
     } finally {
       setRefreshing(false);
     }
   };
 
-  if (loading && !refreshing) {
+  if ((lessonsLoading || technicsLoading) && !refreshing) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#6200EE" />
@@ -200,11 +235,11 @@ const TeacherLibrary = () => {
     );
   }
 
-  if (error) {
+  if (lessonsError || technicsError) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Error loading lessons: {error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={loadLessons}>
+        <Text style={styles.errorText}>Error loading content: {lessonsError || technicsError}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={onRefresh}>
           <Text style={styles.retryText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -234,30 +269,39 @@ const TeacherLibrary = () => {
         items={lessons} 
         onViewAll={() => handleViewAll('lessons')}
         onRefresh={() => handleRefreshCategory('lessons')}
+        navigation={navigation}
       />
       <CategorySection 
         title="Technics" 
-        items={staticData.technics} 
+        items={technics} 
         onViewAll={() => handleViewAll('technics')}
         onRefresh={() => handleRefreshCategory('technics')}
+        navigation={navigation}
+
       />
       <CategorySection 
         title="Compositions" 
         items={staticData.compositions} 
         onViewAll={() => handleViewAll('compositions')}
         onRefresh={() => handleRefreshCategory('compositions')}
+        navigation={navigation}
+
       />
       <CategorySection 
         title="Theory" 
         items={staticData.theory} 
         onViewAll={() => handleViewAll('theory')}
         onRefresh={() => handleRefreshCategory('theory')}
+        navigation={navigation}
+
       />
       <CategorySection 
         title="Tests" 
         items={staticData.tests} 
         onViewAll={() => handleViewAll('tests')}
         onRefresh={() => handleRefreshCategory('tests')}
+        navigation={navigation}
+
       />
     </ScrollView>
   );
@@ -387,6 +431,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     bottom: 10,
+  },
+  cardActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+  },
+  assignButton: {
+    marginLeft: 10,
   },
 });
 

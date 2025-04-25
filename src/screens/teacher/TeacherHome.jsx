@@ -26,10 +26,10 @@ const TeacherHome = ({ navigation }) => {
       </TouchableOpacity>
       <TouchableOpacity 
         style={styles.actionButton}
-        onPress={() => navigation.navigate('CreateLesson')}
+        onPress={() => navigation.navigate('CreateTechnic')}
       >
         <Icon name="plus" size={24} color="#6200EE" />
-        <Text style={styles.actionText}>Add Technics</Text>
+        <Text style={styles.actionText}>Add Technique</Text>
       </TouchableOpacity>
       {/* <TouchableOpacity 
         style={styles.actionButton}

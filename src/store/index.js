@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import lessonReducer from './slices/lessonSlice';
 import classReducer from './slices/classSlice';
 import teacherReducer from './slices/teacherSlice';
+import technicReducer from './slices/technicSlice';
 
 
 export const store = configureStore({
@@ -10,7 +11,8 @@ export const store = configureStore({
     auth: authReducer,
     lessons: lessonReducer,
     class : classReducer,
-    teacher: teacherReducer
+    teacher: teacherReducer,
+    technic: technicReducer,
   },
 });
 

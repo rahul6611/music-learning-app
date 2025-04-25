@@ -10,6 +10,9 @@ import CreateLesson from '../screens/teacher/CreateLesson';
 import StudentList from '../screens/teacher/StudentList';
 import StudentDetail from '../screens/teacher/StudentDetail';
 import AllLessons from '../screens/teacher/AllLessons';
+import AllTechnics from '../screens/teacher/AllTechnics';
+import CreateTechnic from '../screens/teacher/CreateTechnic';
+import AssignContent from '../screens/teacher/AssignContent';
 import { logoutUser } from '../store/slices/authSlice';
 import { useNavigation } from '@react-navigation/native';
 
@@ -92,6 +95,28 @@ const AppNavigator = () => {
             }}
           />
           <Stack.Screen 
+            name="AllTechnics" 
+            component={AllTechnics}
+            options={{
+              title: 'My Techniques',
+              headerStyle: {
+                backgroundColor: '#6200EE',
+              },
+              headerTintColor: '#fff',
+            }}
+          />
+          <Stack.Screen 
+            name="CreateTechnic" 
+            component={CreateTechnic}
+            options={{
+              title: 'Create Technique',
+              headerStyle: {
+                backgroundColor: '#6200EE',
+              },
+              headerTintColor: '#fff',
+            }}
+          />
+          <Stack.Screen 
             name="StudentList" 
             component={StudentList}
             options={{
@@ -112,6 +137,17 @@ const AppNavigator = () => {
               },
               headerTintColor: '#fff',
               headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="AssignContent" 
+            component={AssignContent}
+            options={{
+              title: 'Assign Content',
+              headerStyle: {
+                backgroundColor: '#6200EE',
+              },
+              headerTintColor: '#fff',
             }}
           />
         </>

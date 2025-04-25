@@ -8,6 +8,8 @@ import TeacherHome from '../screens/teacher/TeacherHome';
 import TeacherPerformance from '../screens/teacher/TeacherPerformance';
 import TeacherTools from '../screens/teacher/TeacherTools';
 import StudentHome from '../screens/student/StudentHome';
+import StudentLibrary from '../screens/student/StudentLibrary';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -40,7 +42,7 @@ const AppTabNavigator = () => {
       />
       <Tab.Screen
         name="Library"
-        component={TeacherLibrary}
+        component={isTeacher ? TeacherLibrary : StudentLibrary}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Icon name="folder" size={size} color={color} />
